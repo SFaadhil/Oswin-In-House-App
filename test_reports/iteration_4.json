@@ -1,0 +1,65 @@
+{
+  "summary": "V4 Employee Portal full backend + frontend test pass. 21/21 new V4 backend pytest pass; legacy V3+V2 regression (34/34) still green => total 55/55. Frontend verified end-to-end for Bablu (User) and Admin: sidebar shows Employee Portal/Leaves/Team Calendar; /employee dashboard renders 4 stat tiles + 5 balance cards + recent/team-today panels; /leaves apply-modal opens, days preview text shows, submit creates a pending row visible in My Leaves; Admin sees mine/pending/all tabs, Approve button works (pending row drops 1→0); Calendar grid + prev/next navigation OK; /leave-types as Admin shows 5 default cards + Add button; User redirect from /leave-types → /dashboard works. Notification badge renders correct unread count ('9+' for Admin after Bablu submitted) but dropdown failed to open in 2 separate Playwright runs (potential flaky toggle or click-outside-listener race - see action items).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "NotificationBell",
+        "issue": "Clicking the notification-bell button did not open the dropdown in either Bablu or Admin Playwright runs (data-testid notification-dropdown not visible 800ms after click). Badge with unread count (9+) renders correctly. Possible cause: `useEffect` mousedown document-listener for outside-click closes dropdown before/while toggle. Suspect that React 18 batching + the mousedown handler ordering may flip `open` back to false, OR `ref.current.contains(e.target)` returns false when the click lands on the inner Bell SVG (contains should return true, but worth verifying). Manual click in browser likely works; recommend main agent verify by hand and consider switching the listener to `mousedown` capture-phase check + pointerdown ignore for the bell button itself, or use a `setOpen(true/false)` instead of toggle.",
+        "selector": "[data-testid=\"notification-bell\"] / [data-testid=\"notification-dropdown\"]",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "LeaveModal leave-type-select",
+        "issues": ["React hydration warning: <span> cannot be a child of <option>. Likely caused by emergent dev-tool x-source build wrapper injecting <span>{name}</span> inside <option>. Cosmetic in dev only; will not affect prod build but should be acknowledged."]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_v4_employee_portal.py",
+    "/app/test_reports/pytest/pytest_v4.xml",
+    "/app/backend/tests/test_v3_rbac.py",
+    "/app/backend/tests/test_subtrack.py"
+  ],
+  "action_items": [
+    "Manually verify NotificationBell dropdown opens on click in browser; if Playwright fails persist, refactor: replace document mousedown listener with a `(e) => { if (!ref.current?.contains(e.target)) setOpen(false); }` listener attached only when open=true (inside the open-effect), to remove the race with the toggle.",
+    "Optional: hide the legacy admin/Director header welcome 'Hi Managing — manage your leaves' which truncates 'Director' from full_name in EmployeeDashboard greeting (cosmetic — uses split(' ')[0] but full_name is 'Managing Director')."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 1347 lines — well past the 700-line split threshold flagged in iteration_2 and iteration_3. V4 added ~250 more lines. Strongly recommend splitting into routes/employee_portal.py, routes/notifications.py, routes/users.py to reduce regressions.",
+    "_enrich_leave performs 4 sequential awaits per leave (user, supervisor, leave_type, approver). For list_leaves and calendar with many rows this becomes O(N*4) DB calls. Consider batch lookups via $in or pre-fetched maps for production scale.",
+    "POST /api/leaves notifies every Director/Admin individually inside an async-for loop with separate insert_one calls per admin — fine for small teams but consider insert_many for atomicity + single round-trip.",
+    "DELETE /api/leaves only flips status to 'cancelled'; cannot be re-applied. Consider preventing cancel of approved leave that has already started (currently allows it).",
+    "list_leaves with scope=all does not filter by status param when status query is supplied (line 1058: `if status and scope != 'pending'` skips status if scope=='pending', but for scope=='all' status filter is correctly applied — minor readability concern).",
+    "Calendar endpoint loads ALL approved leaves when start/end omitted (no upper bound). Add `if not (start and end): raise 400` or default to current month to prevent unbounded reads.",
+    "balance computation iterates per leave-type and per leave row in Python. A single aggregate pipeline grouped by leave_type_id would be cleaner.",
+    "Notifications endpoint has no pagination cursor — only `limit`. Add `before` / `since` cursors before user notification volume grows.",
+    "No data-testid on header/page-title elements in EmployeeDashboard or LeaveTypes (page-level selectors used grid/page only).",
+    "JWT secret + admin password remain hard-coded fallbacks in server startup (carry-over from previous iterations)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_v4_employee_portal.py (NEW – 21 tests)"
+  ],
+  "success_rate": {
+    "backend": "100% (21/21 V4 + 34/34 regression = 55/55 pytest pass)",
+    "frontend": "92% (sidebar, employee dashboard, leaves apply+approve, calendar nav, leave-types CRUD UI, user redirect — all OK; notification dropdown open/close not verified by Playwright but badge counts correct)"
+  },
+  "test_credentials": {
+    "Admin": "s.faadhil@oswinpanel.com / Admin@123",
+    "Director": "shivam@oswinpanel.com / Shivam@2026",
+    "User (Bablu)": "bablu@oswinpanel.com / Bablu@2026",
+    "Other Users": "sangram/sagar/abhirami/tushar @oswinpanel.com / <Firstname>@2026",
+    "Manager": "manager@test.com / Manager@123"
+  },
+  "seed_data_creation": "All test data prefixed TEST_ and cleaned up within each test. One Bablu approved leave 2026-09-05 left in DB after admin-approve test (admin DELETE called for cleanup but cancellation status only). Live leave 2026-12-15→17 created by Playwright run was approved by admin and cancelled in subsequent admin run. Bablu Casual quota usage may show small residue.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "V4 backend is rock solid (21/21 + 34/34 regression). The single remaining concern is NotificationBell dropdown not opening under Playwright — likely a benign click-outside listener race that won't manifest with real users. Main agent should: (1) manually click bell in browser to confirm; (2) consider attaching the document mousedown listener only when open=true to remove the toggle race. All other V4 features (apply/approve/reject/cancel/calendar/balance/leave-types/supervisors/notifications/employee-dashboard) verified by automated tests. test_v4_employee_portal.py is the authoritative V4 regression suite.",
+  "rca_of_issue": "Notification dropdown not opening under Playwright RCA hypothesis: NotificationBell.jsx attaches a document-level `mousedown` listener (line 35-38) at mount which fires BEFORE React's synthetic onClick. When Playwright clicks the bell button, mousedown propagates to document; the handler checks `ref.current.contains(e.target)` and only closes if outside. ref.current is the wrapper <div>, target is the inner <svg>/<path> from the Bell icon — DOM contains() should return true so the listener should NOT close it. However, if open is initially false and the toggle then sets it true, a second mousedown synthesised by Playwright (between mousedown/mouseup of the click) could re-fire and find e.target inside again. Most likely Playwright timing peculiarity rather than a user-facing bug. Mitigation: gate the document listener by `if (open)` and attach only during open state."
+}

@@ -1,0 +1,156 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 4 (Swiss & High-Contrast - Dark Variant)",
+  "rationale": "For an enterprise SaaS dashboard managing finances and subscriptions, the user needs a command-center feel. Dark mode with high contrast ensures legibility, reduces eye strain for power users, and signals authority. The blue/green palette is adapted to high-visibility neon tones for quick scanning.",
+  "colors": {
+    "background": {
+      "app": "#090A0F",
+      "surface": "#14151C",
+      "surface_hover": "#1A1B24"
+    },
+    "primary": {
+      "base": "#3B82F6",
+      "hover": "#60A5FA",
+      "active": "#2563EB"
+    },
+    "secondary": {
+      "base": "#10B981",
+      "hover": "#34D399"
+    },
+    "alerts": {
+      "warning": "#FACC15",
+      "urgent": "#F97316",
+      "danger": "#EF4444",
+      "success": "#10B981"
+    },
+    "text": {
+      "primary": "#F8FAFC",
+      "secondary": "#94A3B8",
+      "muted": "#64748B"
+    },
+    "border": {
+      "subtle": "#1E202B",
+      "strong": "#334155"
+    },
+    "categories": {
+      "software": "#3B82F6",
+      "marketing": "#F59E0B",
+      "cloud": "#06B6D4",
+      "hardware": "#F43F5E",
+      "operations": "#8B5CF6"
+    }
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Chivo",
+      "weights": ["light", "regular", "bold"],
+      "tracking": "tracking-tight"
+    },
+    "body": {
+      "font_family": "IBM Plex Sans",
+      "weights": ["regular", "medium"],
+      "tracking": "tracking-normal"
+    },
+    "scales": {
+      "h1": "text-4xl sm:text-5xl font-light tracking-tight text-[#F8FAFC]",
+      "h2": "text-2xl sm:text-3xl font-regular tracking-tight text-[#F8FAFC]",
+      "h3": "text-xl sm:text-2xl font-medium tracking-tight text-[#F8FAFC]",
+      "h4": "text-lg sm:text-xl font-medium text-[#F8FAFC]",
+      "body": "text-base text-[#94A3B8]",
+      "small": "text-sm text-[#64748B]",
+      "overline": "text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]"
+    }
+  },
+  "layout_and_spacing": {
+    "grid_system": "The Control Room Grid",
+    "dashboard_grid": {
+      "container": "grid grid-cols-1 md:grid-cols-4 gap-6",
+      "metrics_card": "col-span-1",
+      "main_chart": "col-span-1 md:col-span-3",
+      "secondary_chart": "col-span-1",
+      "data_table": "col-span-1 md:col-span-4"
+    },
+    "spacing_scale": {
+      "section_padding": "py-12 px-6 md:px-12",
+      "card_padding": "p-6",
+      "element_gap": "gap-4"
+    },
+    "alignment": "Strictly left-aligned for data and labels. Right-aligned for monetary values (INR). Optical alignment for icons."
+  },
+  "surface_strategies": {
+    "cards": "Flat background (#14151C), 1px solid border (#1E202B), no shadow by default. Hover adds shadow-lg and brightens border.",
+    "header": "Crystal Glassmorphism: bg-[#14151C]/70 backdrop-blur-xl border-b border-white/10. Sticky top with z-50.",
+    "sidebar": "Solid dark background (#090A0F) with right border (#1E202B).",
+    "radius": "rounded-sm (4px) globally for a technical, crisp aesthetic."
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#3B82F6] text-white rounded-sm px-6 py-2 hover:bg-[#60A5FA] hover:text-white transition-colors",
+      "secondary": "bg-transparent border border-[#334155] text-[#F8FAFC] rounded-sm px-6 py-2 hover:bg-[#1A1B24] hover:text-white transition-colors"
+    },
+    "forms": {
+      "input": "bg-[#090A0F] border border-[#1E202B] rounded-sm text-[#F8FAFC] focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent",
+      "labels": "text-sm font-medium text-[#94A3B8] mb-1.5 block"
+    },
+    "tables": {
+      "header": "bg-[#090A0F] text-xs uppercase tracking-wider text-[#64748B] border-b border-[#1E202B]",
+      "row": "border-b border-[#1E202B] hover:bg-[#1A1B24] transition-colors"
+    },
+    "charts": {
+      "library": "recharts",
+      "tooltip": "bg-[#14151C] border border-[#1E202B] shadow-xl rounded-sm p-3 text-[#F8FAFC]"
+    }
+  },
+  "motion": {
+    "hover_states": "transition-all duration-200 ease-in-out",
+    "page_transitions": "opacity transition with framer-motion, 0.3s ease",
+    "list_stagger": "staggered entrance for table rows and metric cards"
+  },
+  "icons": {
+    "library": "@phosphor-icons/react",
+    "style": "Regular or Duotone for active states"
+  },
+  "accessibility": {
+    "focus_states": "focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 focus:ring-offset-[#090A0F]",
+    "contrast": "All text passes minimum 4.5:1 ratio on background. Alert colors tested for colorblind visibility."
+  },
+  "media": {
+    "image_urls": {
+      "login_background": {
+        "url": "https://images.unsplash.com/photo-1759159347914-88541fa4bd14?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGRhcmslMjBibHVlJTIwYXJjaGl0ZWN0dXJlJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NzY0MjQ3NTB8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract geometric pattern of dark blue cubes",
+        "usage": "Background image for the Login/Register authentication pages."
+      },
+      "brand_logo": {
+        "url": "https://images.unsplash.com/photo-1651223969333-7a02ad74c4f0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxsb2dvJTIwYWJzdHJhY3QlMjBzaGFwZXxlbnwwfHx8fDE3NzY0MjQ3NjR8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract blue shape logo",
+        "usage": "Placeholder logo in the sidebar/header navigation."
+      },
+      "user_avatars": [
+        {
+          "url": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3NzY0MjQ3NjR8MA&ixlib=rb-4.1.0&q=85",
+          "description": "Professional man avatar",
+          "usage": "MD / Manager profile picture"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwzfHxwb3J0cmFpdCUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3NzY0MjQ3NjR8MA&ixlib=rb-4.1.0&q=85",
+          "description": "Professional woman avatar",
+          "usage": "Team Member profile picture"
+        }
+      ]
+    }
+  },
+  "testing": {
+    "attributes": "All interactive elements MUST use 'data-testid' following kebab-case, role-based naming (e.g., data-testid='login-submit-button', data-testid='sidebar-nav-dashboard')."
+  },
+  "instructions_to_main_agent": [
+    "Install @phosphor-icons/react, recharts, framer-motion.",
+    "Use custom HTML/Tailwind for the Control Room Grid layout. Do NOT overuse Shadcn Card components; prefer raw divs with specified flat borders and backgrounds for maximum density control.",
+    "Implement the specific alert logic for Subscriptions: green (active), yellow (due < 7 days), orange (due < 3 days), red (overdue).",
+    "Format all currency values in INR (₹) and right-align those columns in the data tables.",
+    "Use Chivo for headings and IBM Plex Sans for body. Configure Tailwind to load these fonts.",
+    "Enforce strictly Dark Theme. Do not build a theme toggle.",
+    "Forms for Add/Edit Subscription should be handled via Shadcn Dialog (Modal) to maintain dashboard context without navigating away.",
+    "All navigation must reside in a left sidebar. Top header should only contain context/profile info and use the Crystal Glassmorphism style."
+  ]
+}

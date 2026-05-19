@@ -1,0 +1,57 @@
+{
+  "summary": "V2 end-to-end testing completed. 17/20 backend pytest tests pass. Frontend flows all verified across MD/Manager/User roles - logo, theme toggle, dashboard charts, RBAC sidebar filtering, subscription One Time billing, Reports 4 tabs, Password Manager (MD only). Two backend issues found: admin-create silently drops module_permissions (CRITICAL) and /api/auth/me does not backfill access_level for pre-existing Manager/User accounts (MINOR).",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/users/admin-create",
+        "issue": "module_permissions field from AdminCreateUser payload is NEVER persisted to MongoDB. The doc dict constructed on line ~395 of server.py omits module_permissions entirely; only email, password_hash, full_name, role, access_level, is_active, manager_id are inserted. As a result, admin creation of a user with custom per-module permissions silently fails - the user is created with no override and the permissions-based sidebar filtering will not work for newly admin-created users.",
+        "priority": "CRITICAL",
+        "fix_hint": "Add 'module_permissions': data.module_permissions to the doc dict in admin_create_user() before db.users.insert_one."
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "GET /api/auth/me",
+        "issue": "For Manager/User accounts created before access_level was added (pre-V2 data), /api/auth/me returns the raw Mongo doc which lacks the 'access_level' field. The login endpoint hides this via .get('access_level','editor') default, but /auth/me does not backfill. This is inconsistent and can break frontend access_level-dependent logic. The MD seed in startup_event() has a backfill ('elif not existing.get(access_level)') but Manager/User docs do not."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_subtrack.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Fix POST /api/users/admin-create to persist module_permissions into the inserted user doc (currently dropped).",
+    "Backfill access_level='editor' for any existing Manager/User docs missing the field (one-time migration in startup_event or make /auth/me guarantee the field via .get default).",
+    "Consider cleaning up TEST_* data created from repeated pytest runs (TEST_Netflix, TEST_EditMe, TEST_Category_*) from the database - visible in UI list."
+  ],
+  "critical_code_review_comments": [
+    "server.py admin_create_user (~line 395) silently drops module_permissions from the payload - should spread data.model_dump() or explicitly include module_permissions in the insert doc.",
+    "Dashboard monthly_trend computation (line 772-778) uses $or combined with existing query keys that may include $or from search - not currently an issue because search isn't applied here, but the query-merge pattern is fragile.",
+    "JWT_SECRET fallback 'dev-secret-change-me' is a production risk (noted in iteration_1 - unresolved).",
+    "server.py is 860 lines - approaching the 700-line threshold; consider splitting into routes/auth.py, routes/subscriptions.py, routes/passwords.py, routes/reports.py modules.",
+    "No rate limiting on /api/passwords/{id}/reveal - a compromised MD token could mass-exfiltrate decrypted secrets. Consider adding an audit log of reveal events."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_subtrack.py"
+  ],
+  "success_rate": {
+    "backend": "85% (17/20 pytest tests passing)",
+    "frontend": "100% (all V2 flows verified: login, logo, theme toggle+persistence, dashboard cards+2 charts, RBAC sidebar for MD/Manager/User, subscription modal with One Time & Responsible Person, Reports 4 tabs, Password Manager MD-only)"
+  },
+  "test_credentials": {
+    "MD": "s.faadhil@oswinpanel.com / Admin@123",
+    "Manager": "manager@test.com / Manager@123",
+    "User": "user@test.com / User@1234"
+  },
+  "seed_data_creation": "Backend tests create and clean up their own TEST_* records. Some pre-existing TEST_Netflix/TEST_EditMe entries from iteration_1 remain in DB and are visible in Subscriptions page.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "V2 verified. Only 2 backend bugs remain: (1) admin-create drops module_permissions - needs fix in server.py admin_create_user(), (2) /auth/me for pre-existing Manager/User accounts returns doc without access_level. All frontend V2 features (theme toggle, historical trend chart, One Time cycle, Responsible Person dropdown, Reports 4 tabs, Password Manager page for MD only, RBAC sidebar filtering) work correctly. Test fixtures login via access_token bearer. pytest run: `pytest /app/backend/tests/test_subtrack.py -v`. Once admin-create fix lands, main agent can re-run the 3 failed tests directly to self-verify.",
+  "rca_of_issues": "admin-create module_permissions drop: In server.py line ~395, the 'doc' dict for db.users.insert_one is constructed with explicit field list and omits 'module_permissions'. The AdminCreateUser Pydantic model accepts it, but the route does not unpack it into the insert. Fix: either use `**data.model_dump(exclude_none=True)` or add the field explicitly. /auth/me access_level missing: get_current_user() returns the raw Mongo user doc (minus password_hash). For older Manager/User docs created before access_level was added, the field never existed. Login uses user.get('access_level','editor') defaulting, but /auth/me returns raw doc without backfill."
+}

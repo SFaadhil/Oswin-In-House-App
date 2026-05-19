@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\faadh\\\\OneDrive\\\\Desktop\\\\Oswin\\\\Oswin-In-House-App-main\" -Force)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "Bash(ls \"C:\\\\Users\\\\faadh\\\\OneDrive\\\\Desktop\\\\Oswin\\\\Oswin-In-House-App-main\" 2>/dev/null || ls /mnt/c/Users/faadh/OneDrive/Desktop/Oswin/Oswin-In-House-App-main 2>/dev/null || pwd)",
+      "Bash(npm install *)",
+      "Bash(find /mnt/c/Users/faadh -name \"mobile\" -type d 2>/dev/null | head -5)",
+      "Bash(npx tsc *)",
+      "Bash(ipconfig)",
+      "Bash(findstr /i \"IPv4\")",
+      "Bash(eas whoami *)",
+      "Bash(eas build:configure --platform all)",
+      "Bash(eas init *)",
+      "Bash(eas build *)",
+      "Bash(eas build:list --platform android --limit 1)",
+      "Bash(eas build:view 284bb3ec-712f-4b93-b570-77a78a276168)",
+      "Bash(timeout 60 eas build:list --platform android --limit 2)",
+      "Bash(gh auth *)",
+      "Bash(git -C \"C:\\\\Users\\\\faadh\\\\OneDrive\\\\Desktop\\\\Oswin\\\\Oswin-In-House-App-main\" init)",
+      "Bash(git -C \"C:\\\\Users\\\\faadh\\\\OneDrive\\\\Desktop\\\\Oswin\\\\Oswin-In-House-App-main\" status)",
+      "PowerShell(gh --version)"
+    ]
+  }
+}
