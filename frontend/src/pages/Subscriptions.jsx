@@ -22,7 +22,9 @@ export default function Subscriptions() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const subPerm = user?.module_permissions?.subscriptions;
   const subAccess = typeof subPerm === "string" ? subPerm : subPerm?.access;
-  const isViewer = user?.access_level === "viewer" || subAccess === "view";
+  // Managers have view-only access to subscriptions by default unless explicitly overridden
+  const managerViewOnly = user?.role === "Manager" && subAccess !== "edit";
+  const isViewer = user?.access_level === "viewer" || subAccess === "view" || managerViewOnly;
 
   const fetchSubs = useCallback(async () => {
     setLoading(true);
@@ -79,7 +81,7 @@ export default function Subscriptions() {
           <p className="text-sm text-muted-foreground">{subs.length} subscription{subs.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex gap-2">
-          {user?.role === "MD" && (
+          {["Director", "Admin", "MD"].includes(user?.role) && (
             <button onClick={() => { setShowArchived(p => !p); if (!showArchived) fetchArchived(); }}
               className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground border border-border rounded-lg hover:bg-muted transition-colors"
               data-testid="toggle-archived-button">

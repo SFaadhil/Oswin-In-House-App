@@ -24,8 +24,9 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
-    const { access_token, ...userData } = res.data;
+    const { access_token, refresh_token, ...userData } = res.data;
     if (access_token) localStorage.setItem("subtrack_token", access_token);
+    if (refresh_token) localStorage.setItem("subtrack_refresh_token", refresh_token);
     setUser(userData);
     return userData;
   };
@@ -33,6 +34,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await api.post("/auth/logout").catch(() => {});
     localStorage.removeItem("subtrack_token");
+    localStorage.removeItem("subtrack_refresh_token");
     setUser(null);
   };
 

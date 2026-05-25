@@ -15,6 +15,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Leaves from "./pages/Leaves";
 import CalendarPage from "./pages/CalendarPage";
 import Tasks from "./pages/Tasks";
+import LeaveTypes from "./pages/LeaveTypes";
 import "./App.css";
 
 function ProtectedRoute({ children, roles }) {
@@ -42,6 +43,7 @@ function AppRoutes() {
           <Route path="reports" element={<ProtectedRoute roles={["Director", "Admin", "MD", "Manager", "User"]}><Reports /></ProtectedRoute>} />
           <Route path="categories" element={<ProtectedRoute roles={["Director", "Admin", "MD"]}><Categories /></ProtectedRoute>} />
           <Route path="users" element={<ProtectedRoute roles={["Director", "Admin", "MD"]}><Users /></ProtectedRoute>} />
+          <Route path="leave-types" element={<ProtectedRoute roles={["Director", "Admin", "MD"]}><LeaveTypes /></ProtectedRoute>} />
           <Route path="employee" element={<EmployeeDashboard />} />
           <Route path="leaves" element={<Leaves />} />
           <Route path="calendar" element={<CalendarPage />} />

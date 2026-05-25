@@ -221,6 +221,7 @@ class SubscriptionCreate(BaseModel):
     management_link: Optional[str] = None
     payment_method: Optional[str] = None
     notes: Optional[str] = None
+    assigned_user_id: Optional[str] = None  # top roles can assign ownership to any user
 
 class SubscriptionUpdate(BaseModel):
     subscription_name: Optional[str] = None
@@ -364,8 +365,9 @@ async def register(data: UserRegister, response: Response):
     result = await db.users.insert_one(doc)
     user_id = str(result.inserted_id)
     access_token = create_access_token(user_id, email)
-    set_auth_cookies(response, access_token, create_refresh_token(user_id))
-    return {"id": user_id, "email": email, "full_name": data.full_name, "role": data.role, "access_level": "editor", "is_active": True, "manager_id": None, "access_token": access_token}
+    refresh_token = create_refresh_token(user_id)
+    set_auth_cookies(response, access_token, refresh_token)
+    return {"id": user_id, "email": email, "full_name": data.full_name, "role": data.role, "access_level": "editor", "is_active": True, "manager_id": None, "access_token": access_token, "refresh_token": refresh_token}
 
 @api_router.post("/auth/login")
 async def login(data: UserLogin, response: Response, request: Request):
@@ -389,8 +391,9 @@ async def login(data: UserLogin, response: Response, request: Request):
     await db.login_attempts.delete_one({"identifier": identifier})
     user_id = str(user["_id"])
     access_token = create_access_token(user_id, email)
-    set_auth_cookies(response, access_token, create_refresh_token(user_id))
-    return {"id": user_id, "email": email, "full_name": user.get("full_name", ""), "role": user.get("role", "User"), "access_level": user.get("access_level", "editor"), "is_active": True, "manager_id": user.get("manager_id"), "access_token": access_token}
+    refresh_token = create_refresh_token(user_id)
+    set_auth_cookies(response, access_token, refresh_token)
+    return {"id": user_id, "email": email, "full_name": user.get("full_name", ""), "role": user.get("role", "User"), "access_level": user.get("access_level", "editor"), "is_active": True, "manager_id": user.get("manager_id"), "access_token": access_token, "refresh_token": refresh_token}
 
 @api_router.post("/auth/logout")
 async def logout(response: Response):
@@ -401,9 +404,12 @@ async def logout(response: Response):
 async def get_me(current_user: dict = Depends(get_current_user)):
     return current_user
 
+class RefreshRequest(BaseModel):
+    refresh_token: Optional[str] = None
+
 @api_router.post("/auth/refresh")
-async def refresh_token_endpoint(request: Request, response: Response):
-    token = request.cookies.get("refresh_token")
+async def refresh_token_endpoint(request: Request, response: Response, body: RefreshRequest = RefreshRequest()):
+    token = request.cookies.get("refresh_token") or body.refresh_token
     if not token:
         raise HTTPException(status_code=401, detail="No refresh token")
     try:
@@ -625,7 +631,11 @@ async def get_subscriptions(
 
 @api_router.post("/subscriptions")
 async def create_subscription(data: SubscriptionCreate, current_user: dict = Depends(require_module("subscriptions", need_edit=True))):
-    doc = {**data.model_dump(), "owner_id": current_user["_id"], "is_deleted": False, "created_at": datetime.now(timezone.utc), "updated_at": datetime.now(timezone.utc)}
+    owner_id = current_user["_id"]
+    if data.assigned_user_id and current_user.get("role") in TOP_ROLES:
+        if await db.users.find_one({"_id": ObjectId(data.assigned_user_id), "is_active": True}):
+            owner_id = data.assigned_user_id
+    doc = {**data.model_dump(exclude={"assigned_user_id"}), "owner_id": owner_id, "is_deleted": False, "created_at": datetime.now(timezone.utc), "updated_at": datetime.now(timezone.utc)}
     if data.category_id:
         try:
             if not await db.categories.find_one({"_id": ObjectId(data.category_id)}):

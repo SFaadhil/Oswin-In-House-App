@@ -13,14 +13,29 @@ api.interceptors.request.use(config => {
   return config;
 });
 
-// Handle 401 - clear token and redirect to login
+// Handle 401 - try token refresh first, then redirect to login
 api.interceptors.response.use(
   res => res,
   async err => {
     if (err.response?.status === 401 && !err.config._retry) {
       err.config._retry = true;
       if (!err.config.url?.includes("/auth/")) {
+        const refreshToken = localStorage.getItem("subtrack_refresh_token");
+        if (refreshToken) {
+          try {
+            const refreshRes = await api.post("/auth/refresh", { refresh_token: refreshToken });
+            const newToken = refreshRes.data?.access_token;
+            if (newToken) {
+              localStorage.setItem("subtrack_token", newToken);
+              err.config.headers.Authorization = `Bearer ${newToken}`;
+              return api(err.config);
+            }
+          } catch {
+            // refresh failed, fall through to logout
+          }
+        }
         localStorage.removeItem("subtrack_token");
+        localStorage.removeItem("subtrack_refresh_token");
         window.location.href = "/login";
       }
     }

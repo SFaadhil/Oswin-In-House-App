@@ -3,6 +3,7 @@ import { Plus, X, Calendar, Clock, CheckCircle2, Circle, PauseCircle, XCircle, A
 import api, { formatApiError } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
+import DatePicker from "../components/DatePicker";
 
 const STATUSES = ["Not Started", "In Progress", "Paused", "Completed", "Cancelled"];
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
@@ -85,7 +86,11 @@ function TaskModal({ task, onClose, onSaved }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Due Date</label>
-              <input type="date" value={form.due_date} onChange={e => set("due_date", e.target.value)} className={inpCls} data-testid="task-due-date" />
+              <DatePicker
+                value={form.due_date}
+                onChange={(v) => set("due_date", v)}
+                placeholder="Pick a date"
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Priority</label>

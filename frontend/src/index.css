@@ -106,3 +106,67 @@
 @layer base {
   [data-debug-wrapper="true"] { display: contents !important; }
 }
+
+/* ── react-day-picker theme overrides ───────────────────────────── */
+.dp-popover .rdp {
+  --rdp-cell-size: 34px;
+  --rdp-accent-color: hsl(var(--primary));
+  --rdp-background-color: hsl(var(--primary) / 0.12);
+  --rdp-accent-color-dark: hsl(var(--primary));
+  --rdp-background-color-dark: hsl(var(--primary) / 0.12);
+  --rdp-outline: 2px solid hsl(var(--ring));
+  --rdp-outline-selected: 2px solid hsl(var(--primary));
+  margin: 0;
+  padding: 10px 12px 12px;
+  font-size: 0.8125rem;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.dp-popover .rdp-caption { padding: 0 0 8px; }
+.dp-popover .rdp-caption_label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+.dp-popover .rdp-nav_button {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  color: hsl(var(--muted-foreground));
+  border: 1px solid hsl(var(--border));
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.dp-popover .rdp-nav_button:hover {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+}
+.dp-popover .rdp-head_cell {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.dp-popover .rdp-day {
+  width: var(--rdp-cell-size);
+  height: var(--rdp-cell-size);
+  border-radius: 7px;
+  font-size: 0.8rem;
+  color: hsl(var(--foreground));
+  transition: background 0.12s, color 0.12s;
+}
+.dp-popover .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_disabled) {
+  background: hsl(var(--muted));
+}
+.dp-popover .rdp-day_selected,
+.dp-popover .rdp-day_selected:hover {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+}
+.dp-popover .rdp-day_today:not(.rdp-day_selected) {
+  color: hsl(var(--primary));
+  font-weight: 700;
+}
+.dp-popover .rdp-day_outside { opacity: 0.35; }
+.dp-popover .rdp-day_disabled { opacity: 0.25; cursor: not-allowed; }
+.dp-popover .rdp-table { border-collapse: separate; border-spacing: 1px; }

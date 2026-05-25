@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, CreditCard, BarChart2, Tag, Users, User, LogOut, Menu, X, Sun, Moon, Briefcase, Calendar as CalIcon, CalendarCheck, ListChecks } from "lucide-react";
+import { LayoutDashboard, CreditCard, BarChart2, Tag, Users, User, LogOut, Menu, X, Sun, Moon, Briefcase, Calendar as CalIcon, CalendarCheck, ListChecks, Layers } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ const navItems = [
   { path: "/subscriptions", icon: CreditCard, label: "Subscriptions", roles: ["Director", "Admin", "MD", "Manager", "User"], module: "subscriptions" },
   { path: "/reports", icon: BarChart2, label: "Reports", roles: ["Director", "Admin", "MD", "Manager", "User"], module: "reports" },
   { path: "/categories", icon: Tag, label: "Categories", roles: ["Director", "Admin", "MD"], module: "categories" },
+  { path: "/leave-types", icon: Layers, label: "Leave Types", roles: ["Director", "Admin", "MD"], module: null },
   { path: "/users", icon: Users, label: "User Management", roles: ["Director", "Admin", "MD"], module: "users" },
 ];
 
